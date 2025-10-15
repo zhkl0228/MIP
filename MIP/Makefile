@@ -34,7 +34,7 @@ ARCH2 := i386
 endif
 
 
-SIGN_IDENTITY ?= CodeSign
+SIGN_IDENTITY ?= -
 CODESIGN_TARGET := codesign -s "$(SIGN_IDENTITY)"
 
 all: build/lsdinjector.dylib build/loader.dylib build/inject build/injectd local.lsdinjector.plist
@@ -95,12 +95,13 @@ build/injector/payloads/%.bin: build/injector/payloads/%.dylib
 install: all
 	sudo mkdir -p $(MIP_ROOT)/user_data
 	sudo mkdir -p $(MIP_ROOT)/Bundles
-	sudo mkdir -p /usr/local/include/mip
+	sudo mkdir -p $(MIP_ROOT)/include/mip
 	@# We remove the old libraries before copying, overwriting causes codesigning issues.
 	-@sudo rm -f $(MIP_ROOT)/{lsdinjector.dylib,loader.dylib,injectd}
 	sudo cp build/lsdinjector.dylib build/loader.dylib build/injectd $(MIP_ROOT)
-	sudo cp build/inject /usr/local/bin/
-	sudo cp loader/loader_public.h /usr/local/include/mip/loader.h	
+	sudo cp build/inject /usr/local/bin/inject
+	sudo cp loader/loader_public.h $(MIP_ROOT)/include/mip/loader.h
+	sudo cp loader/substrate.h $(MIP_ROOT)/include/substrate.h
 	sed "s=@MIP_ROOT@=$(MIP_ROOT)=g" local.injectd.plist | sudo dd of=/Library/LaunchDaemons/local.injectd.plist
 	sed "s=@MIP_ROOT@=$(MIP_ROOT)=g" local.lsdinjector.plist | sudo dd of=/Library/LaunchDaemons/local.lsdinjector.plist
 
@@ -126,7 +127,7 @@ install: all
 
 uninstall:
 	-sudo rm -rf $(MIP_ROOT)
-	-sudo rm -rf /usr/include/mip
+	-sudo rm -f /usr/local/bin/inject
 	-sudo rm /Library/LaunchDaemons/local.lsdinjector.plist
 	-sudo defaults delete /Library/Preferences/com.apple.security.libraryvalidation.plist DisableLibraryValidation
 	
