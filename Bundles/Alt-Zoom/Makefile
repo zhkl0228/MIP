@@ -7,7 +7,7 @@ MIP_ROOT ?= /Library/Apple/System/Library/Frameworks/mip
 all: build/Alt-Zoom.bundle build/Alt-Zoom.app
 
 CC := clang
-CFLAGS += -mmacosx-version-min=10.10 -Werror -Wall -I. -I/usr/local/include -g -O3
+CFLAGS += -mmacosx-version-min=10.10 -Werror -Wall -I. -I$(MIP_ROOT)/include -g -O3
 LDFLAGS += -mmacosx-version-min=10.10 -framework AppKit
 
 SYSROOT ?= $(shell xcodebuild -sdk macosx -version Path 2> /dev/null)
@@ -30,7 +30,7 @@ BUNDLE_LDFLAGS += -arch i386
 endif
 endif
 
-SIGN_IDENTITY ?= CodeSign
+SIGN_IDENTITY ?= -
 CODESIGN_TARGET := codesign -fs "$(SIGN_IDENTITY)"
 
 BUNDLE_SOURCES := $(shell ls bundle/*.m)
